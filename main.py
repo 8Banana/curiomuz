@@ -13,7 +13,7 @@ import os
 import time
 
 import curio
-from curio import socket
+from curio import socket, subprocess
 
 import bot
 
@@ -114,24 +114,12 @@ async def termbin_log(event, channel=None):
 
 
 @bot.command("!src")
-async def termbin_source(event):
-    """Pastebin the source code for this bot."""
-    here = os.path.dirname(os.path.abspath(__file__))
-    olddir = os.getcwd()
-    os.chdir(here)
-
-    await event.reply("I'm termbinning myself, please wait...")
-    results = []    # [(filename, url), ...]
-    try:
-        for filename in glob.glob('*.py'):
-            async with curio.aopen(filename, 'r') as f:
-                url = await termbin(f)
-            results.append((filename, url))
-    finally:
-        os.chdir(olddir)
-
-    # functional programming ftw
-    await event.reply("   ".join(map(": ".join, results)))
+async def link_source(event):
+    """Send a link to my code :D"""
+    linkbytes = await subprocess.check_output([
+        'git', 'config', '--get', 'remote.origin.url'])
+    link = linkbytes.decode('utf-8').strip()
+    await event.reply(f"I'm from {link}.")
 
 
 @bot.command("!wtf")
@@ -141,7 +129,8 @@ async def do_wtf(event, acronym):
     async with curio.aopen('wtf-words.txt', 'r') as f:
         async for line in f:
             if line.upper().startswith(acronym + '\t'):
-                return line.replace("\t", ": ").strip()
+                await event.reply(line.replace("\t", ": ").strip())
+                return
     await event.reply(f"I have no idea what {acronym} means :(")
 
 
