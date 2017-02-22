@@ -134,6 +134,16 @@ async def termbin_source(event):
     await event.reply("   ".join(map(": ".join, results)))
 
 
+@bot.command("!wtf")
+def do_wtf(event, acronym):
+    """Translate an acronym to English."""
+    async with curio.aopen('wtf-words.txt', 'r') as f:
+        async for line in f:
+            if line.startswith(acronym + '\t'):
+                await event.reply(line.split('\t', 1)[1].strip())
+    await event.reply(f"WTF? I have no idea what {acronym} means!")
+
+
 bot.add_help_command("!help")
 
 
