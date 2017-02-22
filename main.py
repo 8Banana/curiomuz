@@ -135,13 +135,14 @@ async def termbin_source(event):
 
 
 @bot.command("!wtf")
-def do_wtf(event, acronym):
+async def do_wtf(event, acronym):
     """Translate an acronym to English."""
+    acronym = acronym.upper()
     async with curio.aopen('wtf-words.txt', 'r') as f:
         async for line in f:
-            if line.startswith(acronym + '\t'):
-                await event.reply(line.split('\t', 1)[1].strip())
-    await event.reply(f"WTF? I have no idea what {acronym} means!")
+            if line.upper().startswith(acronym + '\t'):
+                return line.split('\t', 1)[1].strip()
+    await event.reply(f"I have no idea what {acronym} means :(")
 
 
 bot.add_help_command("!help")
@@ -178,7 +179,7 @@ async def main():
     # just basicConfig :(
     logging.getLogger().addHandler(logging.StreamHandler())
 
-    bananabot = bot.IrcBot('bananananana', ['#8banana'])
+    bananabot = bot.IrcBot('curiomuz', ['#8banana'])
     await bananabot.connect('chat.freenode.net')
     await bananabot.mainloop()
 
