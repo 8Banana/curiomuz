@@ -141,7 +141,7 @@ async def do_wtf(event, acronym):
     async with curio.aopen('wtf-words.txt', 'r') as f:
         async for line in f:
             if line.upper().startswith(acronym + '\t'):
-                return line.split('\t', 1)[1].strip()
+                return line.replace("\t", ": ").strip()
     await event.reply(f"I have no idea what {acronym} means :(")
 
 
