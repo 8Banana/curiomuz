@@ -7,10 +7,10 @@ Account creating page: https://repl.it/site/api
 You can find your API secret here: https://repl.it/account/
 """
 
-# Big thanks to __Myst__ for writing most of this code! Figuring out 
+# Big thanks to __Myst__ for writing most of this code! Figuring out
 # this stuff might have taken us several days without his awesome help.
 
-# This code is based on the node.js replit-client. You can download it 
+# This code is based on the node.js replit-client. You can download it
 # to ./node_modules like this:
 #   $ npm install replit-client
 #
@@ -28,7 +28,7 @@ import asks
 import curio
 
 
-FIVE_DAYS = 60 * 60 * 24 * 5
+FIVE_DAYS = 60 * 60 * 24 * 5 * 1000
 logger = logging.getLogger(__name__)
 ReplitResponse = collections.namedtuple("ReplitResponse", "output response")
 _known_token = None
