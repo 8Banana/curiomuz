@@ -1,7 +1,7 @@
 """Run the bot.
 
-Channel messages, join/part/quit messages and the like are saved to 
-files under irclogs and printed to stdout. Debugging messages are 
+Channel messages, join/part/quit messages and the like are saved to
+files under irclogs and printed to stdout. Debugging messages are
 printed to stderr and saved in botlog.txt.
 """
 
@@ -128,8 +128,10 @@ async def do_wtf(event, acronym):
     acronym = acronym.upper()
     async with curio.aopen('wtf-words.txt', 'r') as f:
         async for line in f:
-            if line.upper().startswith(acronym + '\t'):
-                await event.reply(line.replace("\t", ": ").strip())
+            if line.upper().startswith(acronym + ' '):
+                initialisim, definition = line.split(' ', 1)
+                definition = definition.lstrip()
+                await event.reply(f'{initialisim}: {definition}')
                 return
     await event.reply(f"I have no idea what {acronym} means :(")
 
@@ -142,14 +144,14 @@ bot.add_help_command("!help")
 @bot.quit
 async def info_handler(event):
     logmsg = "* {} {}s".format(
-        event.sender['nick'], event.command.lower())
+        event.sender['nick'], event.msg_type.lower())
     await log_msg(event.target, logmsg)
 
 
 @bot.kick
 async def kick_handler(event):
     logmsg = "{} {}s {} (reason: {})".format(
-        event.sender['nick'], event.command.lower(),
+        event.sender['nick'], event.msg_type.lower(),
         event.target, event.reason)
     await log_msg(event.channel, logmsg)
 
@@ -164,7 +166,7 @@ async def main():
     logging.basicConfig(
         filename='botlog.txt', datefmt='%d %b %H:%M:%S', level=logging.DEBUG,
         format="[%(asctime)s] %(name)s %(levelname)s: %(message)s")
-    # unfortunately it's not possible to log to file and stderr with 
+    # unfortunately it's not possible to log to file and stderr with
     # just basicConfig :(
     logging.getLogger().addHandler(logging.StreamHandler())
 

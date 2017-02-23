@@ -19,9 +19,9 @@ class Event(types.SimpleNamespace):
     pass
 
 
-def _basic_event_handler(command):
+def _basic_event_handler(msg_type):
     def _inner(func):
-        event_handlers.setdefault(command, []).append(func)
+        event_handlers.setdefault(msg_type, []).append(func)
         return func
     return _inner
 
@@ -104,11 +104,11 @@ def command(command_name):
 def add_help_command(command_name):
     """Add a help command using the command decorator.
 
-    The descriptions are taken from the command functions' docstrings. 
-    New commands can be added after adding this help command and they 
+    The descriptions are taken from the command functions' docstrings.
+    New commands can be added after adding this help command and they
     will show up in the help.
 
-    The new help function is returned. For example, you can change its 
+    The new help function is returned. For example, you can change its
     docstring to customize getting help of the help command.
     """
 
@@ -163,26 +163,26 @@ def _parse_sender(sender):
 
 
 def _parse_message(raw_msg):
-    sender, command, params = raw_msg.strip("\r\n").split(" ", 2)
+    sender, msg_type, params = raw_msg.strip("\r\n").split(" ", 2)
     try:
-        start, end = params.split(" :", 1)
+        recipient, message = params.split(" :", 1)
     except ValueError:
         # no " :"
         paramlist = params.split(" ")
     else:
-        paramlist = start.split(" ") + [end]
+        paramlist = recipient.split(" ") + [message]
 
-    result = Event(sender=_parse_sender(sender), command=command,
+    result = Event(sender=_parse_sender(sender), msg_type=msg_type,
                    params=paramlist)
 
-    # these are most common things for convenience, use params if these 
+    # these are most common things for convenience, use params if these
     # are not enough
     # the target attribute is usually a channel or a nick
-    if command in {'JOIN', 'PART', 'QUIT'}:
+    if msg_type in {'JOIN', 'PART', 'QUIT'}:
         (result.target,) = paramlist
-    elif command == 'PRIVMSG':
+    elif msg_type == 'PRIVMSG':
         result.target, result.message = paramlist
-    elif command == 'KICK':
+    elif msg_type == 'KICK':
         result.channel, result.target, result.reason = paramlist
     return result
 
@@ -218,12 +218,12 @@ class IrcBot:
         await self._send("USER", self.nick, "0", "*", ":" + self.nick)
 
         logger.info("waiting for the end of MOTD")
-        # We need to wait for the command that signals the end of the MOTD.
+        # We need to wait for the msg_type that signals the end of the MOTD.
         # This is defined in RFC 2812.
         async for line in self.stream:
             line = line.decode("utf-8")
             event = _parse_message(line)
-            if event.command == "376":
+            if event.msg_type == "376":
                 break
             print("(MOTD/notice)", line.rstrip("\r\n"))
 
@@ -248,5 +248,5 @@ class IrcBot:
             event.bot = self
             event.reply = functools.partial(self.reply, event)
             print(event)
-            for callback in event_handlers.get(event.command, ()):
+            for callback in event_handlers.get(event.msg_type, ()):
                 await curio.spawn(callback(event))
