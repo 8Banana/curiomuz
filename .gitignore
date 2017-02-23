@@ -91,3 +91,4 @@ ENV/
 # Logs
 irclogs/
 botlog.txt
+replit-api-key.txt
