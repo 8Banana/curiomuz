@@ -162,7 +162,27 @@ async def privmsg_handler(event):
         event.sender['nick'], event.message))
 
 
+def greeting():
+    lines = [
+        "**************************",
+        "** Welcome to curiomuz! **",
+        "**************************",
+        "\n",
+        "        __     ",
+        "    _  / /     ",
+        "     )/ /      ",
+        "    /  /_      ",
+        "   |  |  \     ",
+        "   |_/         ",
+        "\n\n\n",
+    ]
+    for line in lines:
+        print(line.center(70).rstrip())
+
+
 async def main():
+    greeting()
+
     logging.basicConfig(
         filename='botlog.txt', datefmt='%d %b %H:%M:%S', level=logging.DEBUG,
         format="[%(asctime)s] %(name)s %(levelname)s: %(message)s")
