@@ -53,7 +53,7 @@ async def _generate_token():
 
 
 def _is_old(token):
-    then = int(token.split(":")[0]) / 1000
+    then = int(token.split(":")[0]) / 1000    # FIXME: should /1000 be here?
     return then + FIVE_DAYS <= time.time()
 
 
